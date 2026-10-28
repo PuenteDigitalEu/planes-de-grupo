@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    :root { --azul:#1a73e8; --fondo:#f4f6fb; --texto:#1f2430; --suave:#5f6675; --ok:#188038; --error:#c5221f; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+           background:var(--fondo); color:var(--texto); line-height:1.5; }
+    .caja { max-width:440px; margin:0 auto; padding:24px 16px 40px; }
+    .tarjeta { background:#fff; border-radius:16px; padding:24px 20px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    .icono { font-size:40px; text-align:center; }
+    h1 { font-size:22px; text-align:center; margin:4px 0 6px; }
+    .sub { text-align:center; color:var(--suave); margin:0 0 20px; font-size:15px; }
+    label { display:block; font-weight:600; font-size:14px; margin:14px 0 6px; }
+    input { width:100%; padding:13px 14px; font-size:16px; border:1px solid #d3d7df; border-radius:10px; }
+    input:focus { outline:2px solid var(--azul); border-color:transparent; }
+    .ayuda { font-size:13px; color:var(--suave); margin-top:5px; }
+    button, .boton { display:block; width:100%; margin-top:20px; padding:14px; font-size:16px; font-weight:600;
+             color:#fff; background:var(--azul); border:0; border-radius:10px; text-align:center; text-decoration:none; cursor:pointer; }
+    button:disabled { opacity:.6; }
+    .error { color:var(--error); font-size:14px; margin-top:12px; min-height:1em; }
+    .ok { color:var(--ok); text-align:center; font-weight:600; font-size:18px; margin:4px 0 10px; }
+    .pestanas { display:flex; gap:6px; margin:20px 0 12px; }
+    .pestanas button { margin:0; padding:10px 4px; font-size:14px; background:#e8eefc; color:var(--azul); }
+    .pestanas button.activa { background:var(--azul); color:#fff; }
+    ol { padding-left:20px; margin:0; }
+    li { margin-bottom:10px; }
+    a { color:var(--azul); }
+    .boton.secundario { background:#e8eefc; color:var(--azul); }
+    .oculto { display:none; }
+  </style>
+</head>
+<body>
+<div class="caja">
+  <div class="tarjeta">
+
+    <!-- PASO 1: FORMULARIO -->
+    <div id="formulario">
+      <div class="icono">📅</div>
+      <h1><?= nombreGrupo ?></h1>
+      <p class="sub">Apúntate y verás todos los planes del grupo en el calendario de tu móvil. Podrás crear, cambiar y borrar eventos.</p>
+
+      <label for="nombre">Tu nombre</label>
+      <input id="nombre" autocomplete="name" placeholder="Ej.: Toni">
+
+      <label for="email">Correo de tu cuenta de Google</label>
+      <input id="email" type="email" autocomplete="email" inputmode="email" placeholder="tucorreo@gmail.com">
+      <div class="ayuda">Si tienes Android, es el correo con el que entras en el móvil.
+        ¿No tienes cuenta de Google? <a href="https://accounts.google.com/signup" target="_blank">Créala gratis aquí</a> (puedes usar tu correo de siempre).</div>
+
+      <label for="codigo">Código del grupo</label>
+      <input id="codigo" autocomplete="off" placeholder="Te lo han dicho en el grupo">
+
+      <button id="unirme" onclick="unirme()">Unirme al calendario</button>
+      <div id="error" class="error"></div>
+    </div>
+
+    <!-- PASO 2: CONFIRMACIÓN Y PASOS -->
+    <div id="hecho" class="oculto">
+      <div class="icono">✅</div>
+      <p class="ok" id="mensajeOk">¡Ya estás dentro!</p>
+      <p class="sub">Te llegará un correo de Google. Ahora haz que aparezca en tu móvil:</p>
+
+      <div class="pestanas">
+        <button id="t-android" class="activa" onclick="pestana('android')">Android</button>
+        <button id="t-iphone" onclick="pestana('iphone')">iPhone</button>
+        <button id="t-pc" onclick="pestana('pc')">Ordenador</button>
+      </div>
+
+      <div id="p-android">
+        <ol>
+          <li>Pulsa el botón de abajo y, si te lo pregunta, pulsa <b>Añadir</b>.</li>
+          <li>Abre la app <b>Google Calendar</b>: el calendario del grupo aparece con su propio color.</li>
+          <li>Si usas el calendario de <b>Samsung</b>: Ajustes del calendario &gt; Gestionar calendarios &gt; activa el del grupo.</li>
+        </ol>
+        <a class="boton" id="enlace1" target="_blank">Añadir el calendario</a>
+      </div>
+
+      <div id="p-iphone" class="oculto">
+        <ol>
+          <li>Pulsa el botón de abajo y, si te lo pregunta, pulsa <b>Añadir</b>.</li>
+          <li>Si aún no lo tienes: <b>Ajustes</b> &gt; <b>Calendario</b> (o Apps &gt; Calendario) &gt; <b>Cuentas</b> &gt; <b>Añadir cuenta</b> &gt; <b>Google</b>, con este mismo correo, y activa Calendarios.</li>
+          <li>Abre <a href="https://calendar.google.com/calendar/syncselect" target="_blank">esta página</a>, marca el calendario del grupo y pulsa <b>Guardar</b>. (Sin este paso el iPhone no lo muestra.)</li>
+          <li>En la app <b>Calendario</b>, toca <b>Calendarios</b> abajo y comprueba que está marcado. Puede tardar unos minutos en aparecer.</li>
+        </ol>
+        <a class="boton" id="enlace2" target="_blank">Añadir el calendario</a>
+      </div>
+
+      <div id="p-pc" class="oculto">
+        <ol>
+          <li>Pulsa el botón de abajo y luego <b>Añadir</b>.</li>
+          <li>Lo verás en Google Calendar, en la lista "Otros calendarios".</li>
+        </ol>
+        <a class="boton" id="enlace3" target="_blank">Añadir el calendario</a>
+      </div>
+
+      <p class="ayuda" style="margin-top:18px">Para crear un plan del grupo, al hacer un evento en tu calendario elige el calendario <b><?= nombreGrupo ?></b> en vez del tuyo.
+        En cada plan verás quién va y qué hace falta (comida, regalos, tareas…), y con el enlace del evento te apuntas.</p>
+      <a class="boton secundario" id="verPlanes">Ver los planes del grupo</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var CAL_ID = <?!= JSON.stringify(calendarId) ?>;
+  var URL_APP = <?!= JSON.stringify(urlApp) ?>;
+  if (URL_APP) document.getElementById('verPlanes').href = URL_APP + '?v=planes';
+  else document.getElementById('verPlanes').classList.add('oculto');
+
+  function unirme() {
+    var btn = document.getElementById('unirme');
+    var err = document.getElementById('error');
+    err.textContent = '';
+    var datos = {
+      nombre: document.getElementById('nombre').value,
+      email: document.getElementById('email').value,
+      codigo: document.getElementById('codigo').value
+    };
+    if (!datos.nombre.trim() || !datos.email.trim() || !datos.codigo.trim()) {
+      err.textContent = 'Rellena los tres campos.';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Un momento…';
+    google.script.run
+      .withSuccessHandler(function (res) {
+        var url = 'https://calendar.google.com/calendar/u/0/r?cid=' + encodeURIComponent(CAL_ID);
+        ['enlace1', 'enlace2', 'enlace3'].forEach(function (id) { document.getElementById(id).href = url; });
+        if (res && res.yaEstaba) document.getElementById('mensajeOk').textContent = '¡Ya estabas dentro!';
+        document.getElementById('formulario').classList.add('oculto');
+        document.getElementById('hecho').classList.remove('oculto');
+        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) pestana('iphone');
+        else if (!/Android/i.test(navigator.userAgent)) pestana('pc');
+      })
+      .withFailureHandler(function (e) {
+        err.textContent = (e && e.message) ? e.message : 'Algo ha fallado. Inténtalo otra vez.';
+        btn.disabled = false;
+        btn.textContent = 'Unirme al calendario';
+      })
+      .unirse(datos);
+  }
+
+  function pestana(cual) {
+    ['android', 'iphone', 'pc'].forEach(function (p) {
+      document.getElementById('p-' + p).classList.toggle('oculto', p !== cual);
+      document.getElementById('t-' + p).classList.toggle('activa', p === cual);
+    });
+  }
+</script>
+</body>
+</html>

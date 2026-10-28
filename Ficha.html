@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    :root { --azul:#1a73e8; --azul-suave:#e8eefc; --fondo:#f4f6fb; --texto:#1f2430; --suave:#5f6675;
+            --ok:#188038; --ok-suave:#e6f4ea; --aviso:#b06000; --aviso-suave:#fef7e0;
+            --error:#c5221f; --borde:#e3e6ec; --morado:#7b3fb3; --morado-suave:#f3ebfa; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+           background:var(--fondo); color:var(--texto); line-height:1.45; }
+    .caja { max-width:520px; margin:0 auto; padding:16px 16px 60px; }
+    .tarjeta { background:#fff; border-radius:16px; padding:18px 16px; margin-bottom:14px;
+               box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    h1 { font-size:22px; margin:0 0 4px; }
+    h2 { font-size:17px; margin:0 0 12px; }
+    .fecha { color:var(--suave); font-size:15px; }
+    .fecha::first-letter { text-transform:uppercase; }
+    .lugar { display:inline-block; margin-top:4px; color:var(--azul); text-decoration:none; font-size:15px; }
+    .cancelado { margin-top:10px; padding:8px 10px; border-radius:8px; background:#fce8e6; color:var(--error); font-size:14px; }
+    .yo { margin-top:14px; padding-top:12px; border-top:1px solid var(--borde); font-size:15px; }
+    .yo label { display:block; font-weight:600; font-size:14px; margin-bottom:6px; }
+    .enlace { background:none; border:0; padding:0; color:var(--azul); font-size:14px; font-weight:400; cursor:pointer; }
+    input, select { width:100%; padding:11px 12px; font-size:16px; border:1px solid #d3d7df; border-radius:10px;
+                    background:#fff; color:var(--texto); }
+    input:focus, select:focus { outline:2px solid var(--azul); border-color:transparent; }
+    button { padding:11px 14px; font-size:15px; font-weight:600; color:#fff; background:var(--azul);
+             border:0; border-radius:10px; cursor:pointer; white-space:nowrap; }
+    button.peq { padding:8px 12px; font-size:14px; }
+    button.sec { background:var(--azul-suave); color:var(--azul); }
+    button.borrar { background:transparent; color:var(--suave); padding:8px 6px; }
+    button.ancho { width:100%; margin-top:10px; }
+    .fila { display:flex; gap:8px; margin-top:8px; align-items:center; }
+    .fila input { flex:1; min-width:0; }
+    .fila-botones { display:flex; gap:6px; }
+    .opcion { flex:1; background:var(--azul-suave); color:var(--azul); padding:12px 4px; }
+    .opcion.activa { background:var(--azul); color:#fff; }
+    .grupo { margin-top:12px; }
+    .grupo-tit { font-size:13px; font-weight:600; color:var(--suave); margin-bottom:5px; }
+    .grupo.suave .chip { background:#f1f3f4; color:var(--suave); }
+    .chips { display:flex; flex-wrap:wrap; gap:6px; }
+    .chip { background:var(--ok-suave); color:var(--ok); padding:4px 10px; border-radius:20px; font-size:14px; }
+    .tipo-tit { font-size:13px; font-weight:700; color:var(--suave); margin:14px 0 2px; text-transform:uppercase; letter-spacing:.03em; }
+    .tipo-tit:first-child { margin-top:0; }
+    .item { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--borde); }
+    .item:last-child { border-bottom:0; }
+    .item-txt { flex:1; min-width:0; }
+    .item-tit { font-weight:600; overflow-wrap:anywhere; }
+    .item-sub { font-size:13px; color:var(--suave); overflow-wrap:anywhere; }
+    .item-sub a { color:var(--azul); }
+    .falta { color:var(--aviso); font-weight:600; }
+    .completo { color:var(--ok); font-weight:600; }
+    .item-acc { display:flex; gap:4px; align-items:center; }
+    .etq { font-size:13px; padding:5px 10px; border-radius:20px; background:var(--ok-suave); color:var(--ok); font-weight:600; }
+    .nuevo { margin-top:14px; padding-top:14px; border-top:1px dashed var(--borde); }
+    .tipos { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+    .tipos button { padding:7px 10px; font-size:14px; font-weight:500; background:#f1f3f4; color:var(--texto); }
+    .tipos button.activa { background:var(--azul); color:#fff; }
+    .stepper { display:inline-flex; align-items:center; border:1px solid #d3d7df; border-radius:10px; overflow:hidden; flex:none; background:#fff; }
+    .stepper button { background:var(--azul-suave); color:var(--azul); border-radius:0; padding:0; width:42px; height:44px; font-size:22px; line-height:1; }
+    .stepper button:disabled { opacity:.35; pointer-events:none; }
+    .stepper span { min-width:38px; text-align:center; font-size:17px; font-weight:700; font-variant-numeric:tabular-nums; }
+    .stepper-et { font-size:12px; color:var(--suave); text-align:center; margin-top:2px; }
+    .gestion { background:#f6f8fc; border-radius:12px; padding:12px; margin:0 0 10px; display:grid; gap:12px; }
+    .gestion-fila { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .gestion-et { font-size:14px; font-weight:600; }
+    .chip-x { display:inline-flex; align-items:center; gap:2px; background:var(--ok-suave); color:var(--ok); border-radius:20px; padding:2px 4px 2px 10px; font-size:14px; }
+    .chip-x button { background:transparent; color:var(--ok); padding:2px 6px; font-size:15px; }
+    .bloque-item { border-bottom:1px solid var(--borde); }
+    .bloque-item:last-child { border-bottom:0; }
+    .bloque-item .item { border-bottom:0; }
+    .barra { height:8px; background:#eceff3; border-radius:6px; margin-top:8px; overflow:hidden; }
+    .barra-in { height:100%; background:var(--ok); }
+    .check { display:flex; align-items:center; gap:8px; font-size:15px; cursor:pointer; padding:6px 0; }
+    .check input { width:20px; height:20px; margin:0; flex:none; }
+    .sub-tit { font-size:13px; font-weight:600; color:var(--suave); margin:14px 0 4px; }
+    details summary { cursor:pointer; font-weight:600; color:var(--azul); padding:2px 0; }
+    .vacio { color:var(--suave); font-size:14px; margin:0; }
+    .secreto { background:var(--morado-suave); color:var(--morado); }
+    .secreto h2 { color:var(--morado); }
+    .secreto .item-sub { color:var(--morado); }
+    .copiar { margin-top:10px; }
+    .volver { display:block; text-align:center; color:var(--azul); text-decoration:none; margin-top:6px; }
+    .aviso { position:fixed; left:50%; bottom:20px; transform:translateX(-50%); max-width:90%;
+             background:#323232; color:#fff; padding:12px 16px; border-radius:10px; font-size:14px; z-index:9; }
+    .oculto { display:none; }
+    body.ocupado button { opacity:.6; pointer-events:none; }
+  </style>
+</head>
+<body>
+<div class="caja">
+  <div id="cabecera" class="tarjeta"><p class="vacio">Cargando el plan…</p></div>
+  <div id="contenido"></div>
+</div>
+<div id="aviso" class="aviso oculto"></div>
+
+<script>
+  var TOKEN = <?!= JSON.stringify(token) ?>;
+  var URL_APP = <?!= JSON.stringify(urlApp) ?>;
+  var TIPOS = [
+    ['comida', '🍽', 'Comida / bebida'],
+    ['regalo', '🎁', 'Regalo'],
+    ['tarea', '📋', 'Tarea'],
+    ['otro', '📦', 'Otro']
+  ];
+  var S = { ficha: null, oculto: false, miembros: [], yo: '', cambiandoYo: false,
+            ocupado: false, tipoNuevo: 'comida', boteAbierto: false, organizador: '', editando: null, cupoNuevo: 1 };
+  try { S.yo = localStorage.getItem('calgrupo_yo') || ''; } catch (e) {}
+
+  // ---------- utilidades ----------
+  function h(tag, props, hijos) {
+    var n = document.createElement(tag);
+    if (props) Object.keys(props).forEach(function (k) {
+      var v = props[k];
+      if (v === null || v === undefined || v === false) return;
+      if (k === 'class') n.className = v;
+      else if (k.indexOf('on') === 0) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v === true ? '' : v);
+    });
+    (hijos || []).forEach(function (c) {
+      if (c === null || c === undefined || c === false) return;
+      n.appendChild(typeof c === 'object' ? c : document.createTextNode(String(c)));
+    });
+    return n;
+  }
+  function tarjeta(titulo, hijos, clase) {
+    return h('div', { class: 'tarjeta ' + (clase || '') }, [h('h2', {}, [titulo])].concat(hijos));
+  }
+  function euros(n) { return Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }); }
+  function numTxt(n) { return n == null ? '' : String(n).replace('.', ','); }
+  function guardarYo(n) { try { localStorage.setItem('calgrupo_yo', n); } catch (e) {} }
+  function aviso(msg) {
+    var a = document.getElementById('aviso');
+    a.textContent = msg; a.classList.remove('oculto');
+    clearTimeout(aviso.t); aviso.t = setTimeout(function () { a.classList.add('oculto'); }, 3500);
+  }
+  function fechaTexto(f) {
+    if (f.todoElDia && f.fechaDia) {
+      var p = f.fechaDia.split('-');
+      return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+    return new Date(f.inicio).toLocaleString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+  }
+  function textoConEnlaces(txt) {
+    return String(txt).split(/(https?:\/\/\S+)/).map(function (p) {
+      return /^https?:\/\//.test(p) ? h('a', { href: p, target: '_blank', rel: 'noopener' }, ['ver enlace']) : p;
+    });
+  }
+  function enlaceFicha() { return URL_APP + '?f=' + TOKEN; }
+
+  // ---------- servidor ----------
+  function cargar() {
+    google.script.run
+      .withSuccessHandler(pintar)
+      .withFailureHandler(function (e) {
+        document.getElementById('cabecera').textContent = (e && e.message) || 'No se ha podido cargar el plan.';
+      })
+      .getFicha(TOKEN, S.yo);
+  }
+  function hacer(tipo, datos) {
+    if (!S.yo) { aviso('Primero elige quién eres, arriba del todo.'); window.scrollTo(0, 0); return; }
+    S.ocupado = true; document.body.classList.add('ocupado');
+    google.script.run
+      .withSuccessHandler(function (r) { fin(); pintar(r); })
+      .withFailureHandler(function (e) { fin(); aviso((e && e.message) || 'Algo ha fallado.'); cargar(); })
+      .accion(TOKEN, S.yo, tipo, datos || {});
+  }
+  function fin() { S.ocupado = false; document.body.classList.remove('ocupado'); }
+
+  // ---------- pintar ----------
+  function pintar(r) {
+    S.ficha = r.ficha; S.oculto = !!r.oculto; S.miembros = r.miembros || []; S.organizador = r.organizador || '';
+    if (S.miembros.length && S.yo && S.miembros.indexOf(S.yo) === -1) S.yo = '';
+    render();
+  }
+
+  function render() {
+    var f = S.ficha;
+    document.title = f.titulo || 'Plan';
+    var cab = document.getElementById('cabecera');
+    cab.innerHTML = '';
+    cab.appendChild(h('h1', {}, [f.titulo || 'Plan']));
+    cab.appendChild(h('div', { class: 'fecha' }, [fechaTexto(f)]));
+    if (f.lugar) cab.appendChild(h('a', { class: 'lugar', target: '_blank', rel: 'noopener',
+      href: 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(f.lugar) }, ['📍 ' + f.lugar]));
+    if (f.cancelado) cab.appendChild(h('div', { class: 'cancelado' }, ['Este plan ya no está en el calendario.']));
+    cab.appendChild(selectorYo());
+
+    var c = document.getElementById('contenido');
+    c.innerHTML = '';
+    if (S.oculto) {
+      c.appendChild(tarjeta('🤫 Aquí no hay nada que ver', [h('p', { class: 'vacio' }, ['Este plan lo están organizando otros. ¡Ya te enterarás!'])]));
+    } else {
+      if (f.sorpresa) c.appendChild(avisoSorpresa(f));
+      c.appendChild(secAsistencia(f));
+      c.appendChild(secLista(f));
+      c.appendChild(secBote(f));
+      c.appendChild(secSorpresa(f));
+    }
+    if (URL_APP) c.appendChild(h('a', { class: 'volver', href: URL_APP + '?v=planes' }, ['← Todos los planes del grupo']));
+  }
+
+  function selectorYo() {
+    if (S.yo && !S.cambiandoYo) {
+      return h('div', { class: 'yo' }, ['👋 Hola, ', h('b', {}, [S.yo]), ' · ',
+        h('button', { class: 'enlace', onclick: function () { S.cambiandoYo = true; render(); } }, ['no soy yo'])]);
+    }
+    var elegir = function (v) {
+      S.yo = v; S.cambiandoYo = false; guardarYo(v);
+      if (v) cargar(); else render();
+    };
+    var ctrl;
+    if (S.miembros.length) {
+      ctrl = h('select', { id: 'yo', onchange: function (e) { elegir(e.target.value); } },
+        [h('option', { value: '' }, ['Elige tu nombre…'])].concat(S.miembros.map(function (n) {
+          return h('option', { value: n, selected: n === S.yo }, [n]);
+        })));
+    } else {
+      ctrl = h('input', { id: 'yo', value: S.yo, placeholder: 'Tu nombre',
+        onchange: function (e) { elegir(e.target.value.trim()); } });
+    }
+    return h('div', { class: 'yo' }, [h('label', { for: 'yo' }, ['¿Quién eres?']), ctrl]);
+  }
+
+  // ---------- Quién va ----------
+  function secAsistencia(f) {
+    var a = f.asistencia || {};
+    var grupos = { si: [], quiza: [], no: [] };
+    Object.keys(a).forEach(function (n) { if (grupos[a[n]]) grupos[a[n]].push(n); });
+    var mio = a[S.yo] || '';
+    var botones = [['si', '✅ Voy'], ['quiza', '🤔 Quizá'], ['no', '❌ No voy']].map(function (o) {
+      return h('button', { class: 'opcion' + (mio === o[0] ? ' activa' : ''),
+        onclick: function () { hacer('asistencia', { estado: mio === o[0] ? '' : o[0] }); } }, [o[1]]);
+    });
+    var ocultos = (f.sorpresa && f.sorpresa.para) || [];
+    var sinResponder = S.miembros.filter(function (n) { return !a[n] && ocultos.indexOf(n) === -1; });
+    return tarjeta('👥 ¿Quién va?', [
+      h('div', { class: 'fila-botones' }, botones),
+      lista('Van', grupos.si),
+      grupos.quiza.length ? lista('Quizá', grupos.quiza) : null,
+      grupos.no.length ? lista('No van', grupos.no) : null,
+      sinResponder.length ? lista('Sin responder', sinResponder, 'suave') : null
+    ]);
+  }
+  function lista(titulo, nombres, clase) {
+    return h('div', { class: 'grupo ' + (clase || '') }, [
+      h('div', { class: 'grupo-tit' }, [titulo + ' (' + nombres.length + ')']),
+      h('div', { class: 'chips' }, nombres.length
+        ? nombres.map(function (n) { return h('span', { class: 'chip' }, [n]); })
+        : [h('span', { class: 'vacio' }, ['Nadie todavía'])])
+    ]);
+  }
+
+  // ---------- Lista de lo que hace falta ----------
+  function secLista(f) {
+    var items = f.items || [];
+    var cuerpo = [];
+    TIPOS.forEach(function (t) {
+      var deEste = items.filter(function (i) { return i.tipo === t[0]; });
+      if (!deEste.length) return;
+      cuerpo.push(h('div', { class: 'tipo-tit' }, [t[1] + ' ' + t[2]]));
+      deEste.forEach(function (i) { cuerpo.push(filaItem(i)); });
+    });
+    if (!cuerpo.length) cuerpo.push(h('p', { class: 'vacio' }, ['Todavía no hay nada. Apunta lo primero que haga falta: tortillas, bebida, un regalo, reservar mesa…']));
+    return tarjeta('🧺 ¿Qué hace falta?', [h('div', {}, cuerpo), formNuevo()]);
+  }
+
+  function stepper(valor, min, alCambiar, etiqueta) {
+    var num = h('span', {}, [String(valor)]);
+    var menos = h('button', { type: 'button', 'aria-label': 'Una persona menos', disabled: valor <= min, onclick: function () { alCambiar(valor - 1); } }, ['−']);
+    var mas = h('button', { type: 'button', 'aria-label': 'Una persona más', disabled: valor >= 50, onclick: function () { alCambiar(valor + 1); } }, ['+']);
+    var caja = h('div', {}, [h('div', { class: 'stepper' }, [menos, num, mas])]);
+    if (etiqueta) caja.appendChild(h('div', { class: 'stepper-et' }, [etiqueta]));
+    return caja;
+  }
+
+  function puedoGestionar(i) { return !!S.yo && (i.creadoPor === S.yo || S.yo === S.organizador); }
+
+  function filaItem(i) {
+    var yoDentro = i.apuntados.indexOf(S.yo) !== -1;
+    var faltan = i.cupo - i.apuntados.length;
+    var gestor = puedoGestionar(i);
+    var sub = [];
+    if (i.apuntados.length) sub.push(i.apuntados.join(', '));
+    if (faltan > 0) sub.push(h('span', { class: 'falta' }, [i.apuntados.length ? 'falta' + (faltan > 1 ? 'n ' : ' ') + faltan : 'Sin asignar']));
+    else if (i.cupo > 1) sub.push(h('span', { class: 'completo' }, ['completo']));
+    var subNodos = [];
+    sub.forEach(function (s, k) { if (k) subNodos.push(' · '); subNodos.push(s); });
+    if (i.nota) { subNodos.push(h('br')); subNodos = subNodos.concat(textoConEnlaces(i.nota)); }
+
+    var acc = [];
+    if (yoDentro) {
+      acc.push(h('span', { class: 'etq' }, ['Tú']));
+      acc.push(h('button', { class: 'peq sec', onclick: function () { hacer('item_soltar', { id: i.id }); } }, ['Soltar']));
+    } else if (faltan > 0) {
+      acc.push(h('button', { class: 'peq', onclick: function () { hacer('item_apuntar', { id: i.id }); } }, ['🙋 Yo']));
+    }
+    if (gestor) {
+      acc.push(h('button', { class: 'peq borrar', title: 'Editar', 'aria-label': 'Editar', onclick: function () {
+        S.editando = S.editando === i.id ? null : i.id; render();
+      } }, ['✏️']));
+    }
+    var otros = i.apuntados.filter(function (n) { return n !== S.yo; });
+    if (!otros.length || gestor) {
+      acc.push(h('button', { class: 'peq borrar', title: 'Borrar', 'aria-label': 'Borrar', onclick: function () {
+        if (window.confirm('¿Quitar "' + i.texto + '" de la lista?')) hacer('item_borrar', { id: i.id });
+      } }, ['🗑']));
+    }
+    var titulo = i.texto + (i.cupo > 1 ? ' (' + i.apuntados.length + '/' + i.cupo + ')' : '');
+    var fila = h('div', { class: 'item' }, [
+      h('div', { class: 'item-txt' }, [h('div', { class: 'item-tit' }, [titulo]), h('div', { class: 'item-sub' }, subNodos)]),
+      h('div', { class: 'item-acc' }, acc)
+    ]);
+    var bloque = h('div', { class: 'bloque-item' }, [fila]);
+    if (gestor && S.editando === i.id) bloque.appendChild(panelGestion(i));
+    return bloque;
+  }
+
+  function panelGestion(i) {
+    var ocultos = (S.ficha.sorpresa && S.ficha.sorpresa.para) || [];
+    var libres = S.miembros.filter(function (n) { return i.apuntados.indexOf(n) === -1 && ocultos.indexOf(n) === -1; });
+    var chips = i.apuntados.length
+      ? i.apuntados.map(function (n) {
+          return h('span', { class: 'chip-x' }, [n, h('button', { type: 'button', 'aria-label': 'Quitar a ' + n,
+            onclick: function () { hacer('item_quitar', { id: i.id, nombre: n }); } }, ['✕'])]);
+        })
+      : [h('span', { class: 'vacio' }, ['Nadie todavía'])];
+    var sel = h('select', { 'aria-label': 'Apuntar a otra persona', onchange: function (e) {
+      if (e.target.value) hacer('item_asignar', { id: i.id, nombre: e.target.value });
+    } }, [h('option', { value: '' }, ['＋ Apuntar a otra persona…'])].concat(libres.map(function (n) {
+      return h('option', { value: n }, [n]);
+    })));
+    return h('div', { class: 'gestion' }, [
+      h('div', { class: 'gestion-fila' }, [
+        h('span', { class: 'gestion-et' }, ['¿Cuántas personas hacen falta?']),
+        stepper(i.cupo, Math.max(1, i.apuntados.length), function (n) { hacer('item_cupo', { id: i.id, cupo: n }); })
+      ]),
+      h('div', {}, [h('div', { class: 'grupo-tit' }, ['Apuntados']), h('div', { class: 'chips' }, chips)]),
+      libres.length ? sel : null,
+      h('button', { class: 'peq sec', onclick: function () { S.editando = null; render(); } }, ['Listo'])
+    ]);
+  }
+
+  function formNuevo() {
+    var texto = h('input', { placeholder: 'Ej.: tortilla de patatas', maxlength: '100' });
+    var cupoCaja = h('div', {});
+    var pintarCupo = function () {
+      cupoCaja.innerHTML = '';
+      cupoCaja.appendChild(stepper(S.cupoNuevo, 1, function (n) { S.cupoNuevo = n; pintarCupo(); }, 'personas'));
+    };
+    pintarCupo();
+    var nota = h('input', { placeholder: 'Detalle o enlace (opcional)', maxlength: '200' });
+    var tipos = h('div', { class: 'tipos' }, TIPOS.map(function (t) {
+      return h('button', { class: S.tipoNuevo === t[0] ? 'activa' : '', onclick: function () {
+        S.tipoNuevo = t[0];
+        [].forEach.call(tipos.children, function (b, k) { b.className = TIPOS[k][0] === t[0] ? 'activa' : ''; });
+      } }, [t[1] + ' ' + t[2]]);
+    }));
+    var enviar = function () {
+      if (!texto.value.trim()) return aviso('Escribe qué hace falta.');
+      hacer('item_add', { texto: texto.value, tipo: S.tipoNuevo, cupo: S.cupoNuevo, nota: nota.value });
+      S.cupoNuevo = 1;
+    };
+    texto.addEventListener('keydown', function (e) { if (e.key === 'Enter') enviar(); });
+    return h('div', { class: 'nuevo' }, [
+      h('div', { class: 'grupo-tit' }, ['Añadir a la lista']),
+      tipos,
+      h('div', { class: 'fila', style: 'align-items:flex-start' }, [texto, cupoCaja]),
+      h('div', { class: 'item-sub', style: 'margin-top:4px' }, ['Con − y + eliges cuántas personas pueden cogerlo (por ejemplo, 3 tortillas = 3).']),
+      h('div', { class: 'fila' }, [nota]),
+      h('button', { class: 'ancho', onclick: enviar }, ['Añadir'])
+    ]);
+  }
+
+  // ---------- Bote ----------
+  function secBote(f) {
+    var b = f.bote || {};
+    if (!b.activo && !S.boteAbierto) {
+      return h('button', { class: 'sec ancho', style: 'margin:0 0 14px', onclick: function () { S.boteAbierto = true; render(); } },
+        ['💰 Añadir un bote (dinero en común)']);
+    }
+    var cConcepto = h('input', { placeholder: 'Para qué es (ej.: lotería de Navidad)', value: b.concepto || '' });
+    var cObjetivo = h('input', { placeholder: 'Total €', inputmode: 'decimal', value: numTxt(b.objetivo) });
+    var cCuota = h('input', { placeholder: '€ por persona', inputmode: 'decimal', value: numTxt(b.cuota) });
+    var guardar = h('button', { class: 'peq', onclick: function () {
+      S.boteAbierto = false;
+      hacer('bote_config', { concepto: cConcepto.value, objetivo: cObjetivo.value, cuota: cCuota.value });
+    } }, ['Guardar']);
+
+    if (!b.activo) {
+      return tarjeta('💰 Nuevo bote', [cConcepto, h('div', { class: 'fila' }, [cObjetivo, cCuota]),
+        h('div', { class: 'fila' }, [guardar,
+          h('button', { class: 'peq sec', onclick: function () { S.boteAbierto = false; render(); } }, ['Cancelar'])])]);
+    }
+
+    var ap = b.aportaciones || [];
+    var total = ap.reduce(function (s, a) { return s + (a.importe || 0); }, 0);
+    var pagado = ap.filter(function (a) { return a.pagado; }).reduce(function (s, a) { return s + (a.importe || 0); }, 0);
+    var mia = ap.filter(function (a) { return a.nombre === S.yo; })[0];
+
+    var resumen = ['Apuntado: ' + euros(total), 'Pagado: ' + euros(pagado)];
+    if (b.objetivo) resumen.push('Total: ' + euros(b.objetivo));
+    if (b.cuota) resumen.push('Por persona: ' + euros(b.cuota));
+    var cab = [
+      b.concepto ? h('div', { class: 'item-tit' }, [b.concepto]) : null,
+      h('div', { class: 'item-sub' }, [resumen.join(' · ')])
+    ];
+    if (b.objetivo) {
+      var pct = Math.min(100, Math.round(total / b.objetivo * 100));
+      cab.push(h('div', { class: 'barra' }, [h('div', { class: 'barra-in', style: 'width:' + pct + '%' })]));
+    }
+    var importe = h('input', { inputmode: 'decimal', value: mia ? numTxt(mia.importe) : numTxt(b.cuota), placeholder: '¿Cuánto pones? (€)' });
+    var miFila = h('div', { class: 'fila' }, [
+      importe,
+      h('button', { class: 'peq', onclick: function () {
+        if (!importe.value.trim()) return aviso('Pon cuánto aportas.');
+        hacer('bote_aportar', { importe: importe.value });
+      } }, [mia ? 'Cambiar' : 'Me apunto']),
+      mia ? h('button', { class: 'peq sec', onclick: function () { hacer('bote_aportar', { importe: '' }); } }, ['Quitarme']) : null
+    ]);
+    var filas = ap.map(function (a) {
+      return h('div', { class: 'item' }, [
+        h('div', { class: 'item-txt' }, [h('div', { class: 'item-tit' }, [a.nombre]), h('div', { class: 'item-sub' }, [euros(a.importe)])]),
+        h('label', { class: 'check' }, [
+          h('input', { type: 'checkbox', checked: !!a.pagado,
+            onchange: function (e) { hacer('bote_pagado', { nombre: a.nombre, pagado: e.target.checked }); } }),
+          'Pagado'
+        ])
+      ]);
+    });
+    var conf = h('details', {}, [
+      h('summary', {}, ['Cambiar el bote']),
+      h('div', { class: 'fila' }, [cConcepto]),
+      h('div', { class: 'fila' }, [cObjetivo, cCuota]),
+      h('div', { class: 'fila' }, [guardar,
+        h('button', { class: 'peq sec', onclick: function () {
+          if (window.confirm('¿Quitar el bote de este plan? Lo apuntado se guarda por si lo volvéis a poner.')) hacer('bote_quitar');
+        } }, ['Quitar bote'])])
+    ]);
+    return tarjeta('💰 Bote', [
+      h('div', {}, cab),
+      h('div', { class: 'sub-tit' }, ['Tu aportación']),
+      miFila,
+      ap.length ? h('div', { class: 'sub-tit' }, ['Quién pone (' + ap.length + ')']) : null,
+      h('div', {}, filas),
+      h('div', { class: 'nuevo' }, [conf])
+    ]);
+  }
+
+  // ---------- Sorpresa ----------
+  function avisoSorpresa(f) {
+    var para = f.sorpresa.para || [];
+    var hijos = [h('p', { class: 'item-sub', style: 'margin:0' }, [para.length
+      ? 'No se lo enseñes a: ' + para.join(', ') + '. En el calendario no se escribe nada de la organización.'
+      : 'Todavía no has elegido para quién es la sorpresa. Hazlo abajo, en "🤫 Plan sorpresa".'])];
+    if (URL_APP) {
+      var campo = h('input', { value: enlaceFicha(), readonly: true, onfocus: function (e) { e.target.select(); } });
+      hijos.push(h('div', { class: 'copiar' }, [
+        h('div', { class: 'item-sub' }, ['Manda este enlace a los demás por privado o por un grupo sin esa persona:']),
+        h('div', { class: 'fila' }, [campo, h('button', { class: 'peq', onclick: function () {
+          var ok = function () { aviso('Enlace copiado. Pégalo en WhatsApp.'); };
+          if (navigator.clipboard) navigator.clipboard.writeText(enlaceFicha()).then(ok, function () { campo.select(); document.execCommand('copy'); ok(); });
+          else { campo.select(); document.execCommand('copy'); ok(); }
+        } }, ['Copiar'])])
+      ]));
+    }
+    return tarjeta('🤫 Es una sorpresa', hijos, 'secreto');
+  }
+
+  function secSorpresa(f) {
+    var activa = !!f.sorpresa;
+    var para = (f.sorpresa && f.sorpresa.para) || [];
+    var interruptor = h('input', { type: 'checkbox', checked: activa });
+    var checks = {};
+    var lista = S.miembros.filter(function (n) { return n !== S.yo; }).map(function (n) {
+      checks[n] = h('input', { type: 'checkbox', checked: para.indexOf(n) !== -1 });
+      return h('label', { class: 'check' }, [checks[n], n]);
+    });
+    var bloque = h('div', { class: activa ? '' : 'oculto' }, [
+      h('div', { class: 'sub-tit' }, ['¿A quién se le oculta?']),
+      lista.length ? h('div', {}, lista) : h('p', { class: 'vacio' }, ['Todavía no hay más gente dada de alta.'])
+    ]);
+    interruptor.addEventListener('change', function () { bloque.className = interruptor.checked ? '' : 'oculto'; });
+    return h('details', { class: 'tarjeta', open: activa && !para.length }, [
+      h('summary', {}, ['🤫 Plan sorpresa']),
+      h('p', { class: 'item-sub' }, ['Si es una sorpresa (un cumpleaños, por ejemplo), elige para quién. Esa persona no verá esta ficha ni el plan en la lista, y en el evento del calendario no se escribirá quién va ni qué se lleva.']),
+      h('label', { class: 'check' }, [interruptor, 'Es una sorpresa']),
+      bloque,
+      h('button', { class: 'peq', style: 'margin-top:8px', onclick: function () {
+        var elegidos = Object.keys(checks).filter(function (n) { return checks[n].checked; });
+        hacer('sorpresa', { activa: interruptor.checked, para: elegidos });
+      } }, ['Guardar'])
+    ]);
+  }
+
+  // ---------- arranque y refresco ----------
+  cargar();
+  setInterval(function () {
+    if (S.ocupado || document.hidden || S.boteAbierto || S.cambiandoYo || S.editando || S.cupoNuevo > 1) return;
+    var a = document.activeElement;
+    if (a && /^(INPUT|SELECT|TEXTAREA)$/.test(a.tagName)) return;
+    if (document.querySelector('details[open]')) return;
+    if ([].some.call(document.querySelectorAll('.nuevo input'), function (i) { return i.value; })) return;
+    cargar();
+  }, 30000);
+</script>
+</body>
+</html>

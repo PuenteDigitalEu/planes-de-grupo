@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    :root { --azul:#1a73e8; --fondo:#f4f6fb; --texto:#1f2430; --suave:#5f6675; --ok:#188038; --aviso:#b06000; --morado:#7b3fb3; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+           background:var(--fondo); color:var(--texto); line-height:1.45; }
+    .caja { max-width:520px; margin:0 auto; padding:20px 16px 40px; }
+    h1 { font-size:22px; margin:0 0 4px; }
+    .sub { color:var(--suave); margin:0 0 14px; }
+    .yo { margin-bottom:14px; font-size:15px; }
+    .yo label { display:block; font-weight:600; font-size:14px; margin-bottom:6px; }
+    select { width:100%; padding:11px 12px; font-size:16px; border:1px solid #d3d7df; border-radius:10px; background:#fff; }
+    .enlace { background:none; border:0; padding:0; color:var(--azul); font-size:14px; cursor:pointer; }
+    a.plan { display:block; background:#fff; border-radius:14px; padding:14px 16px; margin-bottom:10px;
+             box-shadow:0 2px 10px rgba(0,0,0,.05); color:inherit; text-decoration:none; }
+    .tit { font-weight:600; font-size:17px; }
+    .fecha { color:var(--suave); font-size:14px; }
+    .fecha::first-letter { text-transform:uppercase; }
+    .extra { font-size:13px; margin-top:4px; color:var(--ok); }
+    .extra .falta { color:var(--aviso); }
+    .extra .secreto { color:var(--morado); }
+    .vacio { color:var(--suave); text-align:center; padding:30px 0; }
+  </style>
+</head>
+<body>
+<div class="caja">
+  <h1>📅 <?= nombreGrupo ?></h1>
+  <p class="sub">Próximos planes. Toca uno para ver quién va y qué hace falta.</p>
+  <div id="yo" class="yo"></div>
+  <div id="lista"><div class="vacio">Cargando…</div></div>
+</div>
+<script>
+  var URL_APP = <?!= JSON.stringify(urlApp) ?>;
+  var yo = '', cambiando = false, miembros = [];
+  try { yo = localStorage.getItem('calgrupo_yo') || ''; } catch (e) {}
+
+  function el(tag, clase, texto) {
+    var n = document.createElement(tag);
+    if (clase) n.className = clase;
+    if (texto != null) n.textContent = texto;
+    return n;
+  }
+  function fechaTexto(f) {
+    if (f.todoElDia && f.fechaDia) {
+      var p = f.fechaDia.split('-');
+      return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+    }
+    return new Date(f.inicio).toLocaleString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function pintarYo() {
+    var c = document.getElementById('yo');
+    c.innerHTML = '';
+    if (yo && !cambiando) {
+      c.appendChild(document.createTextNode('👋 Hola, '));
+      c.appendChild(el('b', null, yo));
+      c.appendChild(document.createTextNode(' · '));
+      var b = el('button', 'enlace', 'no soy yo');
+      b.onclick = function () { cambiando = true; pintarYo(); };
+      c.appendChild(b);
+      return;
+    }
+    if (!miembros.length) return;
+    c.appendChild(el('label', null, '¿Quién eres?'));
+    var s = el('select');
+    s.appendChild(el('option', null, 'Elige tu nombre…')).value = '';
+    miembros.forEach(function (n) { var o = el('option', null, n); o.value = n; o.selected = n === yo; s.appendChild(o); });
+    s.onchange = function () {
+      yo = s.value; cambiando = false;
+      try { localStorage.setItem('calgrupo_yo', yo); } catch (e) {}
+      cargar();
+    };
+    c.appendChild(s);
+  }
+
+  function cargar() {
+    google.script.run
+      .withSuccessHandler(function (r) {
+        miembros = r.miembros || [];
+        if (yo && miembros.length && miembros.indexOf(yo) === -1) yo = '';
+        pintarYo();
+        var cont = document.getElementById('lista');
+        cont.innerHTML = '';
+        if (!r.planes.length) { cont.appendChild(el('div', 'vacio', 'No hay planes próximos en el calendario.')); return; }
+        r.planes.forEach(function (p) {
+          var a = el('a', 'plan');
+          a.href = URL_APP + '?f=' + encodeURIComponent(p.token);
+          a.appendChild(el('div', 'tit', (p.sorpresa ? '🤫 ' : '') + p.titulo));
+          a.appendChild(el('div', 'fecha', fechaTexto(p) + (p.lugar ? ' · ' + p.lugar : '')));
+          var extra = el('div', 'extra');
+          extra.appendChild(el('span', null, '👥 ' + p.van + (p.van === 1 ? ' va' : ' van')));
+          if (p.cosas) {
+            extra.appendChild(document.createTextNode('   '));
+            extra.appendChild(p.faltan ? el('span', 'falta', '🧺 Faltan ' + p.faltan + ' de ' + p.cosas)
+                                       : el('span', null, '🧺 Todo cubierto'));
+          }
+          if (p.sorpresa) { extra.appendChild(document.createTextNode('   ')); extra.appendChild(el('span', 'secreto', 'Sorpresa')); }
+          a.appendChild(extra);
+          cont.appendChild(a);
+        });
+      })
+      .withFailureHandler(function (e) {
+        document.getElementById('lista').textContent = (e && e.message) || 'No se han podido cargar los planes.';
+      })
+      .listarPlanes(yo);
+  }
+  cargar();
+</script>
+</body>
+</html>
