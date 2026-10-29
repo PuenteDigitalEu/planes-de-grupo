@@ -141,6 +141,7 @@ function sorteoPrivado(token) {
   return {
     titulo: r.sorteo.titulo,
     tope: r.sorteo.tope,
+    topeTexto: r.sorteo.tope ? rangoTope_(r.sorteo.tope) : null,
     dador: r.asig.dador,
     visto: !!r.asig.visto
   };
@@ -237,6 +238,11 @@ function correosMiembros_() {
   return mapa;
 }
 
+/** Texto del rango de gasto, por ejemplo "entre 1,00 € y 20,00 €". */
+function rangoTope_(tope) {
+  return 'entre ' + eur_(1) + ' y ' + eur_(tope);
+}
+
 function limpiarToken_(t) {
   return String(t || '').replace(/[^a-zA-Z0-9]/g, '').slice(0, 32).toLowerCase();
 }
@@ -294,7 +300,7 @@ function enviarCorreos_(lista, titulo, tope) {
       const enlace = url + '?s=' + x.token;
       const cuerpo = 'Hola ' + x.dador + ',\n\n' +
         'Ya está el sorteo "' + titulo + '".\n' +
-        (tope ? 'Tu regalo puede costar entre 1 € y ' + eur_(tope) + '.\n' : '') +
+        (tope ? 'Tu regalo puede costar ' + rangoTope_(tope) + '.\n' : '') +
         '\nEste es tu enlace privado. Ábrelo para ver a quién te toca:\n' + enlace +
         '\n\nNo lo compartas: es solo tuyo.';
       GmailApp.sendEmail(x.correo, '🎁 Tu amigo invisible: ' + titulo, cuerpo, { name: CONFIG.NOMBRE_GRUPO });

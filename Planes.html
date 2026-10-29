@@ -36,6 +36,7 @@
 </div>
 <script>
   var URL_APP = <?!= JSON.stringify(urlApp) ?>;
+  var IDIOMA = <?!= JSON.stringify(idioma) ?>;
   var yo = '', cambiando = false, miembros = [];
   try { yo = localStorage.getItem('calgrupo_yo') || ''; } catch (e) {}
 
@@ -48,9 +49,9 @@
   function fechaTexto(f) {
     if (f.todoElDia && f.fechaDia) {
       var p = f.fechaDia.split('-');
-      return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+      return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString(IDIOMA, { weekday: 'long', day: 'numeric', month: 'long' });
     }
-    return new Date(f.inicio).toLocaleString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+    return new Date(f.inicio).toLocaleString(IDIOMA, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
   }
 
   function pintarYo() {

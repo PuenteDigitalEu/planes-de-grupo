@@ -98,6 +98,9 @@
 <script>
   var TOKEN = <?!= JSON.stringify(token) ?>;
   var URL_APP = <?!= JSON.stringify(urlApp) ?>;
+  var IDIOMA = <?!= JSON.stringify(idioma) ?>;
+  var MONEDA = <?!= JSON.stringify(moneda) ?>;
+  var SIMBOLO = <?!= JSON.stringify(simbolo) ?>;
   var TIPOS = [
     ['comida', '🍽', 'Comida / bebida'],
     ['regalo', '🎁', 'Regalo'],
@@ -127,7 +130,7 @@
   function tarjeta(titulo, hijos, clase) {
     return h('div', { class: 'tarjeta ' + (clase || '') }, [h('h2', {}, [titulo])].concat(hijos));
   }
-  function euros(n) { return Number(n || 0).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }); }
+  function euros(n) { return Number(n || 0).toLocaleString(IDIOMA, { style: 'currency', currency: MONEDA }); }
   function numTxt(n) { return n == null ? '' : String(n).replace('.', ','); }
   function guardarYo(n) { try { localStorage.setItem('calgrupo_yo', n); } catch (e) {} }
   function aviso(msg) {
@@ -138,9 +141,9 @@
   function fechaTexto(f) {
     if (f.todoElDia && f.fechaDia) {
       var p = f.fechaDia.split('-');
-      return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+      return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString(IDIOMA, { weekday: 'long', day: 'numeric', month: 'long' });
     }
-    return new Date(f.inicio).toLocaleString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+    return new Date(f.inicio).toLocaleString(IDIOMA, { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
   }
   function textoConEnlaces(txt) {
     return String(txt).split(/(https?:\/\/\S+)/).map(function (p) {
@@ -381,8 +384,8 @@
         ['💰 Añadir un bote (dinero en común)']);
     }
     var cConcepto = h('input', { placeholder: 'Para qué es (ej.: lotería de Navidad)', value: b.concepto || '' });
-    var cObjetivo = h('input', { placeholder: 'Total €', inputmode: 'decimal', value: numTxt(b.objetivo) });
-    var cCuota = h('input', { placeholder: '€ por persona', inputmode: 'decimal', value: numTxt(b.cuota) });
+    var cObjetivo = h('input', { placeholder: 'Total ' + SIMBOLO, inputmode: 'decimal', value: numTxt(b.objetivo) });
+    var cCuota = h('input', { placeholder: SIMBOLO + ' por persona', inputmode: 'decimal', value: numTxt(b.cuota) });
     var guardar = h('button', { class: 'peq', onclick: function () {
       S.boteAbierto = false;
       hacer('bote_config', { concepto: cConcepto.value, objetivo: cObjetivo.value, cuota: cCuota.value });
@@ -410,7 +413,7 @@
       var pct = Math.min(100, Math.round(total / b.objetivo * 100));
       cab.push(h('div', { class: 'barra' }, [h('div', { class: 'barra-in', style: 'width:' + pct + '%' })]));
     }
-    var importe = h('input', { inputmode: 'decimal', value: mia ? numTxt(mia.importe) : numTxt(b.cuota), placeholder: '¿Cuánto pones? (€)' });
+    var importe = h('input', { inputmode: 'decimal', value: mia ? numTxt(mia.importe) : numTxt(b.cuota), placeholder: '¿Cuánto pones? (' + SIMBOLO + ')' });
     var miFila = h('div', { class: 'fila' }, [
       importe,
       h('button', { class: 'peq', onclick: function () {

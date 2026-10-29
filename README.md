@@ -52,7 +52,7 @@ Es gratis y de código abierto. Funciona con Google Apps Script y Google Calenda
 
 1. En el menú izquierdo, pulsa **Servicios** (el símbolo +).
 2. Busca **Google Calendar API**, elige la versión **v3** y pulsa **Añadir**.
-3. Ve a **Configuración del proyecto** (el engranaje) y pon la zona horaria en **Europe/Madrid**.
+3. Ve a **Configuración del proyecto** (el engranaje) y pon la zona horaria de tu país: **Europe/Madrid** en España, **Europe/London** en Reino Unido.
 
 ### 4. Rellena la configuración
 
@@ -62,6 +62,10 @@ Abre el archivo `Config` y cambia solo lo que va entre comillas:
 - **NOMBRE_GRUPO:** el nombre que verá el grupo, por ejemplo "Los del pueblo".
 - **CODIGO_GRUPO:** una palabra que solo sepáis en el grupo. Sirve para que no se apunte quien reciba el enlace reenviado.
 - **ORGANIZADOR:** tu nombre, para que aparezcas en las fichas.
+- **IDIOMA:** `'es-ES'` para España, `'en-GB'` para Reino Unido. Cambia las fechas y los números.
+- **MONEDA:** `'EUR'` o `'GBP'`.
+- **SIMBOLO_MONEDA:** `'€'` o `'£'`.
+- **ZONA_HORARIA:** `'Europe/Madrid'` o `'Europe/London'`. Debe coincidir con la del paso 3.
 - **URL_APP:** déjalo vacío por ahora (lo rellenarás en el paso 6).
 
 Guarda el archivo.

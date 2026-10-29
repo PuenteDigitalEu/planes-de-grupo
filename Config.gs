@@ -9,6 +9,14 @@ const CONFIG = {
   ORGANIZADOR: 'Tu nombre',
   // Después de "Implementar", pega aquí el enlace de la aplicación web (termina en /exec)
   URL_APP: '',
+  // Idioma para fechas y números (ejemplos: 'es-ES', 'en-GB')
+  IDIOMA: 'es-ES',
+  // Código de la moneda (ejemplos: 'EUR', 'GBP')
+  MONEDA: 'EUR',
+  // Símbolo que se muestra (ejemplos: '€', '£')
+  SIMBOLO_MONEDA: '€',
+  // Zona horaria del calendario (ejemplos: 'Europe/Madrid', 'Europe/London')
+  ZONA_HORARIA: 'Europe/Madrid',
   MAX_MIEMBROS: 60,
   DIAS_A_REVISAR: 365
 };

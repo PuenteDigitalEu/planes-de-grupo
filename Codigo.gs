@@ -49,6 +49,9 @@ function doGet(e) {
   t.nombreGrupo = CONFIG.NOMBRE_GRUPO;
   t.calendarId = CONFIG.CALENDAR_ID;
   t.urlApp = urlApp_();
+  t.idioma = CONFIG.IDIOMA;
+  t.moneda = CONFIG.MONEDA;
+  t.simbolo = CONFIG.SIMBOLO_MONEDA;
   return t.evaluate()
     .setTitle(CONFIG.NOMBRE_GRUPO)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
@@ -449,7 +452,7 @@ function comprobarConfiguracion() {
   Logger.log('Calendario OK: ' + cal.getName());
   Logger.log('Miembros actuales: ' + contarMiembros_());
   Logger.log('Hoja de datos: ' + getLibro_().getUrl());
-  Logger.log('Zona horaria del proyecto: ' + Session.getScriptTimeZone() + ' (debería ser Europe/Madrid)');
+  Logger.log('Zona horaria del proyecto: ' + Session.getScriptTimeZone() + ' (debería ser ' + CONFIG.ZONA_HORARIA + ')');
 }
 
 /** 2º) Después de rellenar URL_APP: activa la creación automática de fichas. */
@@ -480,7 +483,7 @@ function datosEvento_(ev) {
     titulo: ev.getTitle() || 'Plan sin título',
     inicio: ev.getStartTime().toISOString(),
     todoElDia: ev.isAllDayEvent(),
-    fechaDia: Utilities.formatDate(inicio, Session.getScriptTimeZone(), 'yyyy-MM-dd'),
+    fechaDia: Utilities.formatDate(inicio, CONFIG.ZONA_HORARIA, 'yyyy-MM-dd'),
     lugar: ev.getLocation() || ''
   };
 }
@@ -639,7 +642,7 @@ function txt_(v, max) {
 
 function num_(v) {
   if (v === null || v === undefined || v === '') return null;
-  let s = String(v).replace(/\s|€/g, '');
+  let s = String(v).replace(/[^\d.,-]/g, '');
   if (s.indexOf(',') !== -1) s = s.replace(/\./g, '').replace(',', '.'); // 1.234,50
   else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');      // 1.000
   const n = parseFloat(s);
@@ -649,7 +652,11 @@ function num_(v) {
 
 function eur_(n) {
   const partes = (Math.round((n || 0) * 100) / 100).toFixed(2).split('.');
-  return partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ',' + partes[1] + ' €';
+  const ingles = /^en/i.test(CONFIG.IDIOMA);
+  const miles = partes[0].replace(/\B(?=(\d{3})+(?!\d))/g, ingles ? ',' : '.');
+  const cifra = ingles ? miles + '.' + partes[1] : miles + ',' + partes[1];
+  const simbolo = CONFIG.SIMBOLO_MONEDA;
+  return ingles ? simbolo + cifra : cifra + ' ' + simbolo;
 }
 
 function id_() {

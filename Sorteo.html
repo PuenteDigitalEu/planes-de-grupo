@@ -84,9 +84,9 @@
         <label for="o-titulo">Título</label>
         <input id="o-titulo" maxlength="60" placeholder="Amigo invisible de Navidad">
 
-        <label for="o-tope">Tope de gasto por regalo (€, opcional)</label>
+        <label for="o-tope">Tope de gasto por regalo (<?= simbolo ?>, opcional)</label>
         <input id="o-tope" inputmode="decimal" placeholder="Por ejemplo, 20">
-        <p class="aviso-txt">Cada participante verá: "entre 1 € y el tope". Es informativo, la app no compra nada.</p>
+        <p class="aviso-txt">Cada participante verá el rango de gasto, desde el mínimo hasta el tope. Es informativo, la app no compra nada.</p>
 
         <label>Quién participa</label>
         <div id="o-miembros"></div>
@@ -109,6 +109,8 @@
   var MODO = <?!= JSON.stringify(modo) ?>;
   var TOKEN = <?!= JSON.stringify(token) ?>;
   var URL_APP = <?!= JSON.stringify(urlApp) ?>;
+  var IDIOMA = <?!= JSON.stringify(idioma) ?>;
+  var MONEDA = <?!= JSON.stringify(moneda) ?>;
   var YO = '';
   try { YO = localStorage.getItem('calgrupo_yo') || ''; } catch (e) {}
 
@@ -119,7 +121,7 @@
     if (texto != null) n.textContent = texto;
     return n;
   }
-  function eur(n) { return Number(n).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }); }
+  function eur(n) { return Number(n).toLocaleString(IDIOMA, { style: 'currency', currency: MONEDA }); }
   function fallo(id, e) { $(id).textContent = (e && e.message) || 'Algo ha fallado. Inténtalo otra vez.'; }
 
   // ===== PRIVADO =====
@@ -128,7 +130,7 @@
     google.script.run
       .withSuccessHandler(function (r) {
         $('p-hola').textContent = 'Hola, ' + r.dador + '.';
-        $('p-tope').textContent = r.tope ? 'Tu regalo puede costar entre 1 € y ' + eur(r.tope) + '.' : 'Tu regalo: lo que quieras, dentro de lo razonable.';
+        $('p-tope').textContent = r.topeTexto ? 'Tu regalo puede costar ' + r.topeTexto + '.' : 'Tu regalo: lo que quieras, dentro de lo razonable.';
         if (r.visto) $('p-ver').textContent = 'Volver a ver a quién me toca';
       })
       .withFailureHandler(function (e) {
