@@ -32,6 +32,7 @@
   <p class="sub">Próximos planes. Toca uno para ver quién va y qué hace falta.</p>
   <div id="yo" class="yo"></div>
   <div id="lista"><div class="vacio">Cargando…</div></div>
+  <p style="margin:16px 0 0"><a id="sorteo" href="#" style="color:var(--azul)">🎁 Amigo invisible (para el organizador)</a></p>
 </div>
 <script>
   var URL_APP = <?!= JSON.stringify(urlApp) ?>;
@@ -108,6 +109,7 @@
       })
       .listarPlanes(yo);
   }
+  if (URL_APP) document.getElementById('sorteo').href = URL_APP + '?v=sorteo';
   cargar();
 </script>
 </body>

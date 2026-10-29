@@ -33,6 +33,14 @@ function doGet(e) {
   if (p.f) {
     t = HtmlService.createTemplateFromFile('Ficha');
     t.token = String(p.f).replace(/[^a-zA-Z0-9]/g, '').slice(0, 32);
+  } else if (p.s) {
+    t = HtmlService.createTemplateFromFile('Sorteo');
+    t.modo = 'privado';
+    t.token = limpiarToken_(p.s);
+  } else if (p.v === 'sorteo') {
+    t = HtmlService.createTemplateFromFile('Sorteo');
+    t.modo = 'organizador';
+    t.token = '';
   } else if (p.v === 'planes') {
     t = HtmlService.createTemplateFromFile('Planes');
   } else {

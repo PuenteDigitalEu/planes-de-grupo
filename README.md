@@ -41,6 +41,8 @@ Es gratis y de código abierto. Funciona con Google Apps Script y Google Calenda
    - **Archivo > HTML** llamado `Ficha`, y pega el contenido de **Ficha.html**.
    - **Archivo > HTML** llamado `Planes`, y pega el contenido de **Planes.html**.
    - **Archivo > Secuencia de comandos** llamado `Config`, y pega el contenido de **Config.gs**. Así `Config.gs` queda como archivo aparte.
+   - **+ > Script** llamado `SorteoLogica`, y pega el contenido de **Sorteo.gs**.
+   - **+ > HTML** llamado `Sorteo`, y pega el contenido de **Sorteo.html**.
 
    Nota: en el editor los nombres no llevan extensión. Deben coincidir exactamente: `Index`, `Ficha`, `Planes` y `Config`.
 
@@ -88,6 +90,20 @@ Guarda el archivo.
 ### 8. Comparte el enlace con el grupo
 
 Manda por WhatsApp la URL `/exec` del paso 6 y el código del grupo (por separado, si quieres). Cada uno hace el alta como se explica en la app.
+
+## Amigo invisible
+
+Desde **Ver los planes del grupo**, pulsa **🎁 Amigo invisible (para el organizador)**. Solo el organizador puede crear y sortear.
+
+1. **Crear el sorteo:** ponle un título, un tope de gasto (opcional) y marca quién participa. Hacen falta al menos 3 personas, y cada una debe estar dada de alta con su correo.
+2. **Sortear y enviar correos:** la app reparte al azar y manda a cada participante un correo con su enlace privado. Nadie se regala a sí mismo; no hay parejas excluidas.
+3. **Cada participante** abre su enlace y pulsa **Ver a quién me toca**. Se le muestra solo su resultado y el tope de gasto.
+4. **Rehacer:** mientras nadie haya visto su resultado, el organizador puede rehacer el sorteo. Los enlaces anteriores dejan de valer.
+
+**Privacidad, en claro:**
+- El organizador no ve quién regala a quién: el resultado va cifrado en la hoja y la clave es el enlace que llega al correo de cada uno.
+- Quien tenga tu enlace privado verá tu resultado. No lo compartas.
+- El tope de gasto es orientativo: la app no compra ni controla lo que se gasta.
 
 ## Cómo crear un plan
 

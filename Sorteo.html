@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <style>
+    :root { --azul:#1a73e8; --azul-suave:#e8eefc; --fondo:#f4f6fb; --texto:#1f2430; --suave:#5f6675;
+            --ok:#188038; --ok-suave:#e6f4ea; --aviso:#b06000; --aviso-suave:#fef7e0;
+            --error:#c5221f; --borde:#e3e6ec; --morado:#7b3fb3; --morado-suave:#f3ebfa; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+           background:var(--fondo); color:var(--texto); line-height:1.45; }
+    .caja { max-width:520px; margin:0 auto; padding:16px 16px 60px; }
+    .tarjeta { background:#fff; border-radius:16px; padding:18px 16px; margin-bottom:14px;
+               box-shadow:0 2px 12px rgba(0,0,0,.06); }
+    h1 { font-size:22px; margin:0 0 4px; }
+    h2 { font-size:17px; margin:0 0 12px; }
+    .sub { color:var(--suave); margin:0 0 12px; font-size:15px; }
+    label { display:block; font-weight:600; font-size:14px; margin:12px 0 6px; }
+    input { width:100%; padding:11px 12px; font-size:16px; border:1px solid #d3d7df; border-radius:10px; background:#fff; color:var(--texto); }
+    input:focus { outline:2px solid var(--azul); border-color:transparent; }
+    button { padding:12px 14px; font-size:15px; font-weight:600; color:#fff; background:var(--azul);
+             border:0; border-radius:10px; cursor:pointer; }
+    button.sec { background:var(--azul-suave); color:var(--azul); }
+    button.ancho { width:100%; margin-top:10px; }
+    button:disabled { opacity:.6; }
+    .check { display:flex; align-items:center; gap:8px; font-size:15px; padding:6px 0; }
+    .check input { width:20px; height:20px; margin:0; flex:none; }
+    .fila { display:flex; gap:8px; align-items:center; margin-top:8px; }
+    .fila input { flex:1; min-width:0; }
+    .item { padding:12px 0; border-bottom:1px solid var(--borde); }
+    .item:last-child { border-bottom:0; }
+    .item-tit { font-weight:600; }
+    .item-sub { font-size:13px; color:var(--suave); margin-top:2px; }
+    .etq { display:inline-block; font-size:12px; font-weight:600; padding:3px 8px; border-radius:20px; margin-top:6px; }
+    .etq.ok { background:var(--ok-suave); color:var(--ok); }
+    .etq.pend { background:var(--aviso-suave); color:var(--aviso); }
+    .botones { display:flex; flex-direction:column; gap:6px; margin-top:8px; }
+    .privado { background:var(--morado-suave); color:var(--morado); text-align:center; }
+    .privado h2 { color:var(--morado); }
+    .grande { font-size:28px; font-weight:700; margin:12px 0; color:var(--morado); }
+    .aviso-txt { font-size:13px; color:var(--suave); margin-top:14px; }
+    .error { color:var(--error); font-size:14px; margin-top:10px; min-height:1em; }
+    .ok-txt { color:var(--ok); font-weight:600; margin-top:10px; }
+    .vacio { color:var(--suave); font-size:14px; margin:0; }
+    .volver { display:block; text-align:center; color:var(--azul); text-decoration:none; margin-top:10px; }
+    .oculto { display:none; }
+  </style>
+</head>
+<body>
+<div class="caja">
+
+  <!-- ===== MODO PRIVADO: el participante abre su enlace ===== -->
+  <div id="privado" class="oculto">
+    <div class="tarjeta privado">
+      <h2 id="p-titulo">🎁 Amigo invisible</h2>
+      <p class="sub" id="p-hola"></p>
+      <p class="sub" id="p-tope"></p>
+      <div id="p-antes">
+        <button id="p-ver" onclick="revelar()">Ver a quién me toca</button>
+        <p class="aviso-txt">Pulsa solo cuando estés a solas. Esto solo lo ves tú.</p>
+      </div>
+      <div id="p-despues" class="oculto">
+        <p class="sub">Te toca regalar a:</p>
+        <div class="grande" id="p-receptor"></div>
+        <p class="aviso-txt">Guárdalo para ti. No se lo digas a nadie del grupo ni lo publiques.</p>
+      </div>
+      <div id="p-error" class="error"></div>
+    </div>
+  </div>
+
+  <!-- ===== MODO ORGANIZADOR ===== -->
+  <div id="organizador" class="oculto">
+    <h1>🎁 Amigo invisible</h1>
+    <p class="sub">Solo para el organizador. Cada participante recibe su enlace privado por correo.</p>
+
+    <div id="o-sin-permiso" class="tarjeta oculto">
+      <p class="vacio">Primero elige tu nombre en <a id="o-planes" href="#">la lista de planes</a>, y vuelve aquí.</p>
+    </div>
+
+    <div id="o-contenido" class="oculto">
+      <div class="tarjeta">
+        <h2>Nuevo sorteo</h2>
+        <label for="o-titulo">Título</label>
+        <input id="o-titulo" maxlength="60" placeholder="Amigo invisible de Navidad">
+
+        <label for="o-tope">Tope de gasto por regalo (€, opcional)</label>
+        <input id="o-tope" inputmode="decimal" placeholder="Por ejemplo, 20">
+        <p class="aviso-txt">Cada participante verá: "entre 1 € y el tope". Es informativo, la app no compra nada.</p>
+
+        <label>Quién participa</label>
+        <div id="o-miembros"></div>
+        <p class="aviso-txt">Todos los que participan entran en el sorteo. Nadie se regala a sí mismo, y no hay parejas excluidas.</p>
+
+        <button class="ancho" id="o-crear" onclick="crear()">Crear sorteo</button>
+        <div id="o-error" class="error"></div>
+      </div>
+
+      <div class="tarjeta">
+        <h2>Sorteos</h2>
+        <div id="o-lista"><p class="vacio">Cargando…</p></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  var MODO = <?!= JSON.stringify(modo) ?>;
+  var TOKEN = <?!= JSON.stringify(token) ?>;
+  var URL_APP = <?!= JSON.stringify(urlApp) ?>;
+  var YO = '';
+  try { YO = localStorage.getItem('calgrupo_yo') || ''; } catch (e) {}
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, clase, texto) {
+    var n = document.createElement(tag);
+    if (clase) n.className = clase;
+    if (texto != null) n.textContent = texto;
+    return n;
+  }
+  function eur(n) { return Number(n).toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }); }
+  function fallo(id, e) { $(id).textContent = (e && e.message) || 'Algo ha fallado. Inténtalo otra vez.'; }
+
+  // ===== PRIVADO =====
+  function iniciarPrivado() {
+    $('privado').classList.remove('oculto');
+    google.script.run
+      .withSuccessHandler(function (r) {
+        $('p-hola').textContent = 'Hola, ' + r.dador + '.';
+        $('p-tope').textContent = r.tope ? 'Tu regalo puede costar entre 1 € y ' + eur(r.tope) + '.' : 'Tu regalo: lo que quieras, dentro de lo razonable.';
+        if (r.visto) $('p-ver').textContent = 'Volver a ver a quién me toca';
+      })
+      .withFailureHandler(function (e) {
+        $('p-titulo').textContent = 'No se puede abrir';
+        $('p-antes').classList.add('oculto');
+        fallo('p-error', e);
+      })
+      .sorteoPrivado(TOKEN);
+  }
+  function revelar() {
+    $('p-ver').disabled = true;
+    google.script.run
+      .withSuccessHandler(function (r) {
+        $('p-antes').classList.add('oculto');
+        $('p-receptor').textContent = r.receptor;
+        $('p-despues').classList.remove('oculto');
+      })
+      .withFailureHandler(function (e) { $('p-ver').disabled = false; fallo('p-error', e); })
+      .sorteoRevelar(TOKEN);
+  }
+
+  // ===== ORGANIZADOR =====
+  function iniciarOrganizador() {
+    $('organizador').classList.remove('oculto');
+    if (URL_APP) $('o-planes').href = URL_APP + '?v=planes';
+    cargarPanel();
+  }
+  function cargarPanel() {
+    google.script.run
+      .withSuccessHandler(pintarPanel)
+      .withFailureHandler(function (e) {
+        $('o-sin-permiso').classList.remove('oculto');
+        $('o-contenido').classList.add('oculto');
+        if (!YO) $('o-sin-permiso').querySelector('p').textContent = 'Primero elige tu nombre en la lista de planes, y vuelve aquí.';
+        else $('o-sin-permiso').querySelector('p').textContent = (e && e.message) || 'Solo el organizador puede entrar aquí.';
+      })
+      .sorteoPanel(YO);
+  }
+  function pintarPanel(r) {
+    $('o-sin-permiso').classList.add('oculto');
+    $('o-contenido').classList.remove('oculto');
+
+    var caja = $('o-miembros');
+    caja.innerHTML = '';
+    (r.miembros || []).forEach(function (n) {
+      var label = el('label', 'check');
+      var cb = el('input'); cb.type = 'checkbox'; cb.value = n; cb.checked = true;
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(n));
+      caja.appendChild(label);
+    });
+
+    var lista = $('o-lista');
+    lista.innerHTML = '';
+    if (!r.sorteos.length) { lista.appendChild(el('p', 'vacio', 'Todavía no hay sorteos.')); return; }
+    r.sorteos.forEach(function (s) {
+      var item = el('div', 'item');
+      item.appendChild(el('div', 'item-tit', s.titulo));
+      var sub = s.participantes + ' participantes';
+      if (s.tope) sub += ' · tope ' + eur(s.tope);
+      if (s.estado === 'sorteado') sub += ' · ' + s.vistos + ' de ' + s.participantes + ' lo han visto';
+      item.appendChild(el('div', 'item-sub', sub));
+      item.appendChild(el('span', 'etq ' + (s.estado === 'sorteado' ? 'ok' : 'pend'),
+        s.estado === 'sorteado' ? 'Sorteado: correos enviados' : 'Sin sortear'));
+
+      var botones = el('div', 'botones');
+      if (s.estado !== 'sorteado') {
+        botones.appendChild(boton('Sortear y enviar correos', function () { sortear(s.id, false); }));
+      } else if (s.puedeRehacer) {
+        botones.appendChild(boton('Rehacer y reenviar correos', function () { sortear(s.id, true); }, 'sec'));
+      } else {
+        botones.appendChild(el('p', 'vacio', 'Ya lo han visto. No se puede rehacer.'));
+      }
+      item.appendChild(botones);
+      lista.appendChild(item);
+    });
+  }
+  function boton(texto, fn, clase) {
+    var b = el('button', 'ancho ' + (clase || ''), texto);
+    b.onclick = fn;
+    return b;
+  }
+  function crear() {
+    $('o-error').textContent = '';
+    var titulo = $('o-titulo').value.trim();
+    var tope = $('o-tope').value.trim();
+    var elegidos = [].map.call(document.querySelectorAll('#o-miembros input:checked'), function (c) { return c.value; });
+    if (!titulo) { $('o-error').textContent = 'Ponle un título al sorteo.'; return; }
+    if (elegidos.length < 3) { $('o-error').textContent = 'Hacen falta al menos 3 personas.'; return; }
+    $('o-crear').disabled = true;
+    google.script.run
+      .withSuccessHandler(function (r) {
+        $('o-crear').disabled = false;
+        $('o-titulo').value = ''; $('o-tope').value = '';
+        pintarPanel(r);
+      })
+      .withFailureHandler(function (e) { $('o-crear').disabled = false; fallo('o-error', e); })
+      .sorteoCrear(YO, { titulo: titulo, tope: tope, participantes: elegidos });
+  }
+  function sortear(id, rehacer) {
+    var pregunta = rehacer
+      ? '¿Rehacer el sorteo? Se generarán nuevos resultados y se reenviarán los correos. Los enlaces anteriores dejarán de valer.'
+      : '¿Sortear ahora y enviar un correo a cada participante?';
+    if (!window.confirm(pregunta)) return;
+    google.script.run
+      .withSuccessHandler(function (r) {
+        var msg = 'Correos enviados: ' + r.enviados + '.';
+        if (r.fallidos && r.fallidos.length) msg += ' No se han podido enviar a: ' + r.fallidos.join(', ') + '. Vuelve a rehacer el sorteo.';
+        window.alert(msg);
+        pintarPanel(r.panel);
+      })
+      .withFailureHandler(function (e) { window.alert((e && e.message) || 'No se ha podido sortear.'); })
+      .sorteoSortear(YO, id);
+  }
+
+  // ===== ARRANQUE =====
+  if (MODO === 'privado' && TOKEN) iniciarPrivado();
+  else iniciarOrganizador();
+</script>
+</body>
+</html>
